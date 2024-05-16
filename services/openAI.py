@@ -52,8 +52,8 @@ class OpenAI:
         if self.model in ['gpt-4-turbo','gpt-4o']:
             self.chunkSIZE=120000
 
-    @staticmethod
-    def chunk_data(data, chunk_size=15000):
+    def chunk_data(self,data):
+        chunk_size=self.chunkSIZE
         chunks = []
         num_chunks = math.ceil(len(data) / chunk_size)
         for i in range(num_chunks):
