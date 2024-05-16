@@ -31,7 +31,7 @@ client = OpenAI(
 #         if chunk.choices[0].delta.content is not None:
 #             print(chunk.choices[0].delta.content, end="")
 
-#     #return stream
+#     return stream
 
 
 
@@ -53,7 +53,7 @@ class OpenAI:
             self.chunkSIZE=120000
 
     @staticmethod
-    def chunk_data(data, chunk_size):
+    def chunk_data(data, chunk_size=15000):
         chunks = []
         num_chunks = math.ceil(len(data) / chunk_size)
         for i in range(num_chunks):
@@ -91,6 +91,18 @@ class OpenAI:
             final_response = "...".join(filtered_responses)
             return final_response
 
+    def askGPT(self,userQuery):
+        stream = client.chat.completions.create(
+        model=self.model,
+        messages=[{
+            "role": "user", 
+            "content": userQuery}],
+        stream=True
+        )
+
+        return stream
+
+
 
 
 
@@ -110,3 +122,7 @@ class OpenAI:
 # final_output = openAI.format_responses()
 # print('------------------------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>..')
 # print(final_output)
+
+
+
+

@@ -121,9 +121,8 @@ async def ask_gpt(data:UserQueryData,db: Session = Depends(get_db)):
         return ''
 
     
-    
-    
-    
+
+
 
 # @app.websocket("/communicate")
 # async def websocket_endpoint(websocket: WebSocket):
@@ -131,28 +130,43 @@ async def ask_gpt(data:UserQueryData,db: Session = Depends(get_db)):
 #     try:
 #         while True:
 #             data = await websocket.receive_text()
-#             #await manager.send_personal_message(data, websocket)
-            
-#             # for s in l:
-#             #     await manager.send_personal_message(s, websocket)
-#             #     await asyncio.sleep(1)
-            
-#             stream =await askGPT(data)
-#             print('streaming stated')
+#             stream =askGPT(data)
 #             for chunk in stream:
 #                 if chunk.choices[0].delta.content is not None:
 #                     chunkData=chunk.choices[0].delta.content
 #                     await manager.send_personal_message(chunkData, websocket)
 #                     await asyncio.sleep(0.1)
-                    
-
-                
-            
-                
-            
-#             # await manager.broadcast(f"Client  says: {data}")
            
 #     except WebSocketDisconnect:
 #         manager.disconnect(websocket)
 #         await manager.broadcast(f"Client  left the chat")
+
+
+
+@app.websocket("/communicate")
+async def websocket_endpoint(websocket: WebSocket):
+    await manager.connect(websocket)
+    try:
+        while True:
+            data = await websocket.receive_text()
+            data=data.split('????')
+            userQuery,html_data=data[0],data[1]
+            openAI=OpenAI(html_data,userQuery,'gpt-4-turbo')
+            chunks=openAI.chunk_data(html_data,150000)
+            
+            streams=[]
+            for chunk in chunks:
+                stream=openAI.askGPT(chunk)
+                streams.append(stream)
+                
+            for stream in streams:
+                for chunk in stream:
+                    if chunk.choices[0].delta.content is not None:
+                        chunkData=chunk.choices[0].delta.content
+                        await manager.send_personal_message(chunkData, websocket)
+                        await asyncio.sleep(0.1)
+           
+    except WebSocketDisconnect:
+        manager.disconnect(websocket)
+        await manager.broadcast(f"Client  left the chat")
 
