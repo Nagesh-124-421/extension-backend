@@ -156,12 +156,13 @@ async def websocket_endpoint(websocket: WebSocket):
             
             streams=[]
             for chunk in chunks:
-                stream=openAI.askGPT(chunk)
+                stream=openAI.askGPT('MyQuestion : '+userQuery+'.Here I am Providing detials , you can only use this detials to answer my question. Details Provided: '+chunk+'Note: If you dont find provided Details not related to my question just answer with I DONT KNOW')
                 streams.append(stream)
                 
             for stream in streams:
                 for chunk in stream:
-                    if chunk.choices[0].delta.content is not None:
+                    chunk_response=chunk.choices[0].delta.content
+                    if chunk_response is not None:
                         chunkData=chunk.choices[0].delta.content
                         await manager.send_personal_message(chunkData, websocket)
                         await asyncio.sleep(0.1)
