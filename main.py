@@ -150,8 +150,8 @@ async def websocket_endpoint(websocket: WebSocket):
         while True:
             data = await websocket.receive_text()
             data=data.split('????')
-            userQuery,html_data=data[0],data[1]
-            openAI=OpenAI(html_data,userQuery,'gpt-4o')
+            userQuery,html_data,selectedModel=data[0],data[1],data[2]
+            openAI=OpenAI(html_data,userQuery,selectedModel)
             chunks=openAI.chunk_data(html_data)
             
             streams=[]
