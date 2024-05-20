@@ -153,10 +153,15 @@ async def websocket_endpoint(websocket: WebSocket):
             userQuery,html_data,selectedModel=data[0],data[1],data[2]
             openAI=OpenAI(html_data,userQuery,selectedModel)
             chunks=openAI.chunk_data(html_data)
+            instruction1='Note : Now in your response create just one div and inside html elements,add apporipiate style= inside each html tag inside div'
+        
+            instruction2='Note : keep font color for all in black and Roboto  font- family'
+            
+            main_instruction=',Give me your answer in resposive markdown language format'
             
             streams=[]
             for chunk in chunks:
-                stream=openAI.askGPT('MyQuestion : '+userQuery+',Give me your answer in resposive markdown language format'+'.Here I am Providing detials , you can only use this detials to answer my question. Details Provided: '+chunk+'Note: If you dont find provided Details not related to my question just answer with I DONT KNOW')
+                stream=openAI.askGPT('MyQuestion : '+userQuery+instruction1+instruction2+'.Here I am Providing detials , you can only use this detials to answer my question. Details Provided: '+chunk+'Note: If you dont find provided Details not related to my question just answer with I DONT KNOW')
                 streams.append(stream)
                 
             for stream in streams:
