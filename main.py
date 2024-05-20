@@ -161,7 +161,7 @@ async def websocket_endpoint(websocket: WebSocket):
             
             streams=[]
             for chunk in chunks:
-                stream=openAI.askGPT('MyQuestion : '+userQuery+instruction1+instruction2+'.Here I am Providing detials , you can only use this detials to answer my question. Details Provided: '+chunk+'Note: If you dont find provided Details not related to my question just answer with I DONT KNOW')
+                stream=openAI.askGPT('MyQuestion : '+userQuery+'.Here I am Providing detials , you can only use this detials to answer my question. Details Provided: '+chunk+'Note: If you dont find provided Details not related to my question just answer with I DONT KNOW')
                 streams.append(stream)
                 
             for stream in streams:
