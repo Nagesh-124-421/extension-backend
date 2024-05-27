@@ -183,9 +183,18 @@ async def websocket_endpoint(websocket: WebSocket):
             openAI=OpenAI(matched_content,userQuery,selectedModel)
             chunks=openAI.chunk_data(matched_content)
             
+            content =f"Find relavent information from Context Section for Question Asked in Question Section, \
+                        Note : If Context section is ; no information found , then response As No Information Found as well in return... \
+                        Context Section: \
+                        {matched_content} \
+                    
+                        Question Section: \
+                        {userQuery} "
+
+            
             streams=[]
             for chunk in chunks:
-                stream=openAI.askGPT('MyQuestion : '+userQuery+'.Here I am Providing detials , you can only use this detials to answer my question. Details Provided: '+chunk+'Note: If you dont find provided Details not related to my question just answer with I DONT KNOW')
+                stream=openAI.askGPT(content)
                 streams.append(stream)
                 
             for stream in streams:
