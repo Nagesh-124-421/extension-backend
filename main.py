@@ -13,6 +13,7 @@ from db.database import SessionLocal,engine
 
 from db.schemas import HtmlContentRequest
 from db import models
+from services.backend import vectorize_text,get_matched_content
 
 # Initialize database models
 models.Base.metadata.create_all(bind=engine)
@@ -76,6 +77,9 @@ async def post_url(data: UrlData,db: Session = Depends(get_db)):
     db.add(db_item)
     db.commit()
     db.refresh(db_item)
+    
+   
+    
     return db_item
 
     return {'data':text_only}
@@ -97,6 +101,10 @@ async def get_scrapped_content(url: str, db: Session = Depends(get_db)):
             db.add(db_item)
             db.commit()
             db.refresh(db_item)
+            
+            # Supabase
+            vectorize_text(text_only,url)
+    
             return db_item.htmlcontent
     
         return db_item.htmlcontent
@@ -123,6 +131,9 @@ async def ask_gpt(data:UserQueryData,db: Session = Depends(get_db)):
     
 
 
+    
+
+
 
 # @app.websocket("/communicate")
 # async def websocket_endpoint(websocket: WebSocket):
@@ -130,16 +141,28 @@ async def ask_gpt(data:UserQueryData,db: Session = Depends(get_db)):
 #     try:
 #         while True:
 #             data = await websocket.receive_text()
-#             stream =askGPT(data)
-#             for chunk in stream:
-#                 if chunk.choices[0].delta.content is not None:
-#                     chunkData=chunk.choices[0].delta.content
-#                     await manager.send_personal_message(chunkData, websocket)
-#                     await asyncio.sleep(0.1)
+#             data=data.split('????')
+#             userQuery,html_data,selectedModel=data[0],data[1],data[2]
+#             openAI=OpenAI(html_data,userQuery,selectedModel)
+#             chunks=openAI.chunk_data(html_data)
+            
+#             streams=[]
+#             for chunk in chunks:
+#                 stream=openAI.askGPT('MyQuestion : '+userQuery+'.Here I am Providing detials , you can only use this detials to answer my question. Details Provided: '+chunk+'Note: If you dont find provided Details not related to my question just answer with I DONT KNOW')
+#                 streams.append(stream)
+                
+#             for stream in streams:
+#                 for chunk in stream:
+#                     chunk_response=chunk.choices[0].delta.content
+#                     if chunk_response is not None:
+#                         chunkData=chunk.choices[0].delta.content
+#                         await manager.send_personal_message(chunkData, websocket)
+#                         await asyncio.sleep(0.1)
            
 #     except WebSocketDisconnect:
 #         manager.disconnect(websocket)
 #         await manager.broadcast(f"Client  left the chat")
+
 
 
 
@@ -150,14 +173,15 @@ async def websocket_endpoint(websocket: WebSocket):
         while True:
             data = await websocket.receive_text()
             data=data.split('????')
-            userQuery,html_data,selectedModel=data[0],data[1],data[2]
-            openAI=OpenAI(html_data,userQuery,selectedModel)
-            chunks=openAI.chunk_data(html_data)
-            instruction1='Note : Now in your response create just one div and inside html elements,add apporipiate style= inside each html tag inside div'
-        
-            instruction2='Note : keep font color for all in black and Roboto  font- family'
+            userQuery,current_url,selectedModel=data[0],data[1],data[2]
             
-            main_instruction=',Give me your answer in resposive markdown language format'
+            # Find Relavent text
+            matched_content=get_matched_content(userQuery,current_url)
+            
+            
+            
+            openAI=OpenAI(matched_content,userQuery,selectedModel)
+            chunks=openAI.chunk_data(matched_content)
             
             streams=[]
             for chunk in chunks:
