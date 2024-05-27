@@ -183,8 +183,7 @@ async def websocket_endpoint(websocket: WebSocket):
             openAI=OpenAI(matched_content,userQuery,selectedModel)
             chunks=openAI.chunk_data(matched_content)
             
-            content =f"""Find relavent information from Context Section for Question Asked in Question Section, 
-                        Note : If Context section is ; no information found , then response As No Information Found as well in return... 
+            content =f"""
                         Context Section: 
                         {matched_content} 
                     

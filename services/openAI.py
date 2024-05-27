@@ -64,11 +64,18 @@ class OpenAI:
 
     async def gpt(self, chunk_data_user_query):
         chunk_data, user_query = chunk_data_user_query
+        instruction='Note :If your answer has code added in then please provide thripple comma langige name , code and then close with thripple comma'
+        instruction2='Note : i am using 700px by 540px screen so , your markdown respose should add new line accordingly'
+        instruction3=',Give me your answer in resposive markdown language format'
+        instruction4="Find relavent information from Context Section for Question Asked in Question Section, Note : If Context section is ; no information found ,response As No Information Found as well in return... "
+        
+        final_instruction=instruction4+'1)'+instruction+'2)'+instruction2 +'3)'+instruction3
         response = client.chat.completions.create(
             model=self.model,
             messages=[
                 # {"role": "system", "content": f"Your job is to answer the user query using only this information: {chunk_data}, \
                 #     you can't use outside information. If you can't find anything, just respond with 'I AM SORRY!'."},
+                {"role":"system","content":final_instruction},
                 {"role": "user", "content": user_query+chunk_data},
             ]
         )
