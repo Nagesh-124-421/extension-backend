@@ -94,7 +94,6 @@ async def get_scrapped_content(url: str, db: Session = Depends(get_db)):
             else:
                 response=WebScrapper(url=url).scrap()
             response=response.json()
-            print(response)
             html_content=response['results'][0]['content']
             text_only=Beautiful_Soup().get_only_text(html=html_content)
             
@@ -104,7 +103,7 @@ async def get_scrapped_content(url: str, db: Session = Depends(get_db)):
             db.refresh(db_item)
             
             # Supabase
-            await vectorize_text(text_only,url)
+            vectorize_text(text_only,url)
     
             return db_item.htmlcontent
     
