@@ -51,3 +51,23 @@ def get_matched_content(user_query,chatRoomURL):
     except requests.RequestException as error:
         print("Error:", error)
         return matched_content
+
+
+
+import tldextract
+
+def is_google_url(url):
+    extracted = tldextract.extract(url)
+    domain = extracted.domain
+    suffix = extracted.suffix
+
+    # Check if the domain is "google"
+    if domain == "google":
+        return True
+
+    # Check for subdomains like google.com, google.co.in, google.com.au, etc.
+    if domain.endswith("google") and suffix in ["com", "co.in", "com.au", "co.uk", "de", "fr", "jp", "it", "es", "br", "ca", "ru", "com.tr"]:
+        return True
+
+    return False
+

@@ -5,7 +5,7 @@ from manageSocket.manager import ConnectionManager
 from services.openAI import OpenAI
 import asyncio
 
-from services.scrap import Amazon,Beautiful_Soup,WebScrapper
+from services.scrap import Amazon,Beautiful_Soup,WebScrapper,Google
 import json
 from bs4 import BeautifulSoup
 from sqlalchemy.orm import Session
@@ -13,7 +13,7 @@ from db.database import SessionLocal,engine
 
 from db.schemas import HtmlContentRequest
 from db import models
-from services.backend import vectorize_text,get_matched_content
+from services.backend import vectorize_text,get_matched_content,is_google_url
 
 # Initialize database models
 models.Base.metadata.create_all(bind=engine)
@@ -91,6 +91,8 @@ async def get_scrapped_content(url: str, db: Session = Depends(get_db)):
         if not db_item:
             if 'amazon' in url:
                 response=Amazon(url=url).scrap()
+            elif is_google_url(url):
+                response=Google(url=url).scrap
             else:
                 response=WebScrapper(url=url).scrap()
             response=response.json()

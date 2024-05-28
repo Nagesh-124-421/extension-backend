@@ -16,6 +16,33 @@ load_dotenv()  # take environment variables from .env.
 
 # pprint(response.json())
 
+class Google():
+    def __init__(self,url):
+        self.payload = {
+            'source': 'google',
+            'url':url,
+            "render" : "html",
+            'user_agent_type':'desktop_chrome',
+            # "parse" : True
+        }
+
+
+        self.OXYLABS_SERP_USERNAME=os.environ.get("OXYLABS_SERP_USERNAME")
+        self.OXYLABS_SERP_PASSWORD=os.environ.get("OXYLABS_SERP_PASSWORD")
+
+
+
+    def scrap(self):
+        # Get response.
+        response = requests.request(
+            'POST',
+            'https://realtime.oxylabs.io/v1/queries',
+            auth=(self.OXYLABS_SERP_USERNAME, self.OXYLABS_SERP_PASSWORD),
+            json=self.payload,
+        )
+        
+        return response
+
 
 
 class Amazon():
