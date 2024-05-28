@@ -96,6 +96,8 @@ async def get_scrapped_content(url: str, db: Session = Depends(get_db)):
             else:
                 response=WebScrapper(url=url).scrap()
             response=response.json()
+            print(response)
+            print('------------------------')
             html_content=response['results'][0]['content']
             text_only=Beautiful_Soup().get_only_text(html=html_content)
             
