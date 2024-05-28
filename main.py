@@ -203,7 +203,9 @@ async def websocket_endpoint(websocket: WebSocket):
                         chunkData=chunk.choices[0].delta.content
                         await manager.send_personal_message(chunkData, websocket)
                         await asyncio.sleep(0.1)
-           
+            
+            answer_finished="WE ARE DONE"
+            await manager.send_personal_message(answer_finished, websocket)
     except WebSocketDisconnect:
         manager.disconnect(websocket)
         await manager.broadcast(f"Client  left the chat")
