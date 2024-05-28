@@ -1,6 +1,6 @@
 import requests
 
-def vectorize_text(text_value: str, chat_room_id: str):
+async def vectorize_text(text_value: str, chat_room_id: str):
     url = "https://ai-vector.onrender.com/vectorizeText"
     data = {
         "textValue": text_value,

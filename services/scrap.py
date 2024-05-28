@@ -80,6 +80,7 @@ class WebScrapper():
 
 
     def scrap(self):
+        print(self.OXYLABS_WEB_SCRAPPER_USERNAME,self.OXYLABS_WEB_SCRAPPER_PASSWORD)
         # Get response.
         response = requests.request(
             'POST',
