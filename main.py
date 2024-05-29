@@ -248,9 +248,7 @@ async def get_markdown_pdf(url: str, db: Session = Depends(get_db)):
         # Ask Gpt For Markdown
         openAI=OpenAI(html_data="", user_query="",model='gpt-4o')
         markdown_code=openAI.ask_gpt_for_markdown(text_only)
-        
-        print(markdown_code)
-        
+                
         # Convert Markdown Into PDF
         file_path='temp/markdown.pdf'
         pdf_markdown_instance=generate_markdown_pdf(markdown_code)
