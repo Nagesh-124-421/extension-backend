@@ -111,7 +111,7 @@ class OpenAI:
     
     def ask_gpt_for_markdown(self,raw_text):
         try:
-            userQuery="Give me markdown Code for attached Raw Text"
+            userQuery="convert this to markdown fromat for attached Raw Text, dont explain , dont say anything , just return with converted markdown"
             chunks=self.chunk_data(raw_text)
             markdown_code=''
             for chunk in chunks:

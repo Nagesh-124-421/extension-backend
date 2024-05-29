@@ -238,27 +238,31 @@ async def get_markdown_pdf(url: str, db: Session = Depends(get_db)):
             
             # Beautiful soup
             text_only=Beautiful_Soup().get_only_text(html=html_content)
-            
-            # Ask Gpt For Markdown
-            openAI=OpenAI(html_data="", user_query="",model='gpt-4o')
-            markdown_code=openAI.ask_gpt_for_markdown(text_only)
-            
-            # Convert Markdown Into PDF
-            file_path='temp/markdown.pdf'
-            pdf_markdown_instance=generate_markdown_pdf(markdown_code)
-            pdf_markdown_instance.save(file_path)
-            
-            response = FileResponse(file_path, media_type="application/pdf")
-            
             # Add In DB 
             db_item = models.HtmlContent(urlname=url, htmlcontent=text_only)
             db.add(db_item)
             db.commit()
             db.refresh(db_item)
+        
+        text_only=db_item.htmlcontent
+        # Ask Gpt For Markdown
+        openAI=OpenAI(html_data="", user_query="",model='gpt-4o')
+        markdown_code=openAI.ask_gpt_for_markdown(text_only)
+        
+        print(markdown_code)
+        
+        # Convert Markdown Into PDF
+        file_path='temp/markdown.pdf'
+        pdf_markdown_instance=generate_markdown_pdf(markdown_code)
+        pdf_markdown_instance.save(file_path)
+        
+        response = FileResponse(file_path, media_type="application/pdf")
             
-            return response
+        return response
             
         
     except Exception as e:
         print(e)
         return FileResponse('temp/something_went_wrong.pdf',media_type="application/pdf")
+
+    
