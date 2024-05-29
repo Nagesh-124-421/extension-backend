@@ -131,8 +131,10 @@ class OpenAI:
         if self.model in ['gpt-4-turbo','gpt-4o']:
             self.chunkSIZE=120000
 
-    def chunk_data(self,data):
+    def chunk_data(self,data,chunk_size_provided=None):
         chunk_size=self.chunkSIZE
+        if chunk_size_provided:
+            chunk_size=chunk_size_provided
         chunks = []
         num_chunks = math.ceil(len(data) / chunk_size)
         for i in range(num_chunks):
@@ -191,7 +193,7 @@ class OpenAI:
     def ask_gpt_for_markdown(self,raw_text):
         try:
             userQuery="convert this to markdown fromat for attached Raw Text, dont explain , dont say anything , just return with converted markdown"
-            chunks=self.chunk_data(raw_text)
+            chunks=self.chunk_data(raw_text,10000)
             markdown_code=''
             for chunk in chunks:
                 content =f"""
@@ -216,6 +218,7 @@ class OpenAI:
                 )
             
                 markdown_code+=response.choices[0].message.content
+                print('---------------------',len(response.choices[0].message.content))
             
             return markdown_code
         except Exception as e:
