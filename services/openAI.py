@@ -108,6 +108,33 @@ class OpenAI:
         )
 
         return stream
+    
+    def ask_gpt_for_markdown(self,raw_text):
+        try:
+            userQuery="Give me markdown Code for attached Raw Text"
+            chunks=self.chunk_data(raw_text)
+            markdown_code=''
+            for chunk in chunks:
+                content =f"""
+                        {userQuery}....
+                        Raw Text: 
+                        {chunk} 
+                        """
+        
+                response = client.chat.completions.create(
+                    model=self.model,
+                    messages=[
+                        {"role": "user", "content": content},
+                    ]
+                )
+            
+                markdown_code+=response.choices[0].message.content
+            
+            return markdown_code
+        except Exception as e:
+            print(f"Error While ask_gpt_for_markdown ",e)
+            return ''
+
 
 
 

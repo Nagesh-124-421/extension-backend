@@ -4,6 +4,7 @@ import asyncio
 from manageSocket.manager import ConnectionManager
 from services.openAI import OpenAI
 import asyncio
+from fastapi.responses import FileResponse
 
 from services.scrap import Amazon,Beautiful_Soup,WebScrapper,Google
 import json
@@ -14,6 +15,8 @@ from db.database import SessionLocal,engine
 from db.schemas import HtmlContentRequest
 from db import models
 from services.backend import vectorize_text,get_matched_content,is_google_url
+from services.generate_markdown import generate_markdown_pdf
+import os
 
 # Initialize database models
 models.Base.metadata.create_all(bind=engine)
@@ -214,3 +217,48 @@ async def websocket_endpoint(websocket: WebSocket):
         manager.disconnect(websocket)
         await manager.broadcast(f"Client  left the chat")
 
+
+@app.get("/get_markdown_pdf")
+async def get_markdown_pdf(url: str, db: Session = Depends(get_db)):
+    try:
+        # Scrap exist in db or not
+        db_item = db.query(models.HtmlContent).filter(models.HtmlContent.urlname == url).first()
+        if not db_item:
+            # Oxylabs Get scrap
+            if 'amazon' in url:
+                response=Amazon(url=url).scrap()
+            elif is_google_url(url):
+                response=Google(url=url).scrap
+            else:
+                response=WebScrapper(url=url).scrap()
+            response=response.json()
+            html_content=response['results'][0]['content']
+            print(response)
+            print('--------OXY LABS RESPONSE----------------')
+            
+            # Beautiful soup
+            text_only=Beautiful_Soup().get_only_text(html=html_content)
+            
+            # Ask Gpt For Markdown
+            openAI=OpenAI(html_data="", user_query="",model='gpt-4o')
+            markdown_code=openAI.ask_gpt_for_markdown(text_only)
+            
+            # Convert Markdown Into PDF
+            file_path='temp/markdown.pdf'
+            pdf_markdown_instance=generate_markdown_pdf(markdown_code)
+            pdf_markdown_instance.save(file_path)
+            
+            response = FileResponse(file_path, media_type="application/pdf")
+            
+            # Add In DB 
+            db_item = models.HtmlContent(urlname=url, htmlcontent=text_only)
+            db.add(db_item)
+            db.commit()
+            db.refresh(db_item)
+            
+            return response
+            
+        
+    except Exception as e:
+        print(e)
+        return FileResponse('temp/something_went_wrong.pdf',media_type="application/pdf")
