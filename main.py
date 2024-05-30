@@ -1,4 +1,4 @@
-from fastapi import FastAPI,WebSocket, WebSocketDisconnect,Depends
+from fastapi import FastAPI,WebSocket, WebSocketDisconnect,Depends,UploadFile , File
 from fastapi.middleware.cors import CORSMiddleware
 import asyncio
 from manageSocket.manager import ConnectionManager
@@ -17,6 +17,12 @@ from db import models
 from services.backend import vectorize_text,get_matched_content,is_google_url
 from services.generate_markdown import generate_markdown_pdf
 import os
+import shutil
+from services.ocr import process_pdf_and_send_ocr
+
+
+
+
 
 # Initialize database models
 models.Base.metadata.create_all(bind=engine)
@@ -60,10 +66,6 @@ manager=ConnectionManager()
 @app.get("/")
 async def get():
     return 'test'
-
-
-from pprint import pprint
-
 
 
 @app.post("/")
@@ -136,43 +138,6 @@ async def ask_gpt(data:UserQueryData,db: Session = Depends(get_db)):
         return ''
 
     
-
-
-    
-
-
-
-# @app.websocket("/communicate")
-# async def websocket_endpoint(websocket: WebSocket):
-#     await manager.connect(websocket)
-#     try:
-#         while True:
-#             data = await websocket.receive_text()
-#             data=data.split('????')
-#             userQuery,html_data,selectedModel=data[0],data[1],data[2]
-#             openAI=OpenAI(html_data,userQuery,selectedModel)
-#             chunks=openAI.chunk_data(html_data)
-            
-#             streams=[]
-#             for chunk in chunks:
-#                 stream=openAI.askGPT('MyQuestion : '+userQuery+'.Here I am Providing detials , you can only use this detials to answer my question. Details Provided: '+chunk+'Note: If you dont find provided Details not related to my question just answer with I DONT KNOW')
-#                 streams.append(stream)
-                
-#             for stream in streams:
-#                 for chunk in stream:
-#                     chunk_response=chunk.choices[0].delta.content
-#                     if chunk_response is not None:
-#                         chunkData=chunk.choices[0].delta.content
-#                         await manager.send_personal_message(chunkData, websocket)
-#                         await asyncio.sleep(0.1)
-           
-#     except WebSocketDisconnect:
-#         manager.disconnect(websocket)
-#         await manager.broadcast(f"Client  left the chat")
-
-
-
-
 @app.websocket("/communicate")
 async def websocket_endpoint(websocket: WebSocket):
     await manager.connect(websocket)
@@ -248,6 +213,7 @@ async def get_markdown_pdf(url: str, db: Session = Depends(get_db)):
         # Ask Gpt For Markdown
         openAI=OpenAI(html_data="", user_query="",model='gpt-4o')
         markdown_code=openAI.ask_gpt_for_markdown(text_only)
+        print(markdown_code)
                 
         # Convert Markdown Into PDF
         file_path='temp/markdown.pdf'
@@ -263,4 +229,24 @@ async def get_markdown_pdf(url: str, db: Session = Depends(get_db)):
         print(e)
         return FileResponse('temp/something_went_wrong.pdf',media_type="application/pdf")
 
+
+
+@app.post("/ocr-pdf")
+async def ocr_pdf(file: UploadFile = File(...)):
+    try:
+        if file.content_type != "application/pdf":
+            return {"error": "File must be a PDF"}
+
+        file_location = 'temp'+'/'+file.filename
+        with open(file_location, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+        
+        ocr_text=process_pdf_and_send_ocr(file.filename)
+        
+        # Remove file
+        os.remove(file_location)
+    except Exception as e:
+        print(e)
+        return {'data':'something went wrong'}
     
+    return {'data':ocr_text}

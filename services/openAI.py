@@ -2,13 +2,20 @@ from openai import OpenAI
 from dotenv import load_dotenv
 import os
 from datetime import datetime
+from portkey_ai import PORTKEY_GATEWAY_URL, createHeaders
+
 
 
 load_dotenv()  # take environment variables from .env.
 
-client = OpenAI(
+client = OpenAI( 
     # This is the default and can be omitted
     api_key=os.environ.get("OPENAI_API_KEY"),
+     base_url=PORTKEY_GATEWAY_URL,
+    default_headers=createHeaders(
+        provider="openai",
+        api_key="qaaLgK0xUPcFeaha2lAVC2AhXXs="
+    )
 )
 
 
@@ -39,83 +46,6 @@ import math
 import asyncio
 
 
-sample1="""
-Build your product View Product The ultimate game-changer in e-commerce management The Orderhive ecommerce automation platform, now owned by Cin7 , enables wholesalers and retailers manage inventory, orders, product listings, shipping, warehouses, returns, and more. 3.2K+ Active Customers 450+ Integrations 1M+ Transactions Processed Daily Build your Product Read Case Study Revolutionary AI-powered job-matching platform for recruiters and job seekers Through JobTatkal, recruiters can post their requirements, and Artificial Intelligence will parse through millions of CVs uploaded by job seekers to find the best match. 10x faster profile setup with AI parsing of CVs 91% less hiring time with AI candidate search 7x faster job posting with AI-driven job descriptions Build your Product Read Case Study Software Solutions for SMEs and Enterprises Our impressive results across a variety of industries: Healthcare E-commerce BFSI Education Logistic Energy & Utility Sports View All Healthcare IIAM - The Next-gen Patient Management Mobile Application Created for doctors from John Hopkins Research Institute, IIAM is a patient management platform that sorts the patient’s information and stores it locally on their mobiles Explore AWS IONIC Native Android NodeJS E-commerce Orderhive - A SaaS-based Ecommerce Automation Software Cin7 Orderhive is SaaS product developed for buyers and vendors that helps them manage and update inventory, orders, shipping details, warehouse etc. seamlessly Explore AWS Java MySQL NodeJS BFSI Power Traveller - An App for Power Credit Cardholders Power Traveller is a reward planning application, developed for Ajman Bank to increase user engagement. The application was built to help power card holders avail multiple benefits Explore AWS Java NodeJS Swift Education TracPrac - Competency and LMS Platform For Nursing Students TracPrac is a clinical application built for nursing students to track their attendance and evaluate their performance via reports that can be accessed through the application. Explore Java MySQL NodeJS ReactJS Logistic Mover Storage - A Warehouse Storage Management App Mover Storage is a mobile application for storage management of warehouses built by OpenXcell. The app helps users allocate units for storage and tracks status of deliveries Explore iOS NodeJS Energy & Utility Step-Up - A Waste Management App for the Citizens Step Up is a waste management application used in Singapore to manage recyclable waste. It is a user reward system which credits its users C02 points against carbon emission Explore iOS Kotlin ReactJS Swift Sports AthletesGoLive - A Platform For Sports Enthusiasts AthletesGoLive is a creative application for aspiring athletes and sports followers that allows recording of performances along with live streaming capabilities Explore AWS Mongo DB We Love Happy Clients! Client satisfaction is our ultimate goal. Here are some testimonials from our clients expressing their satisfaction with our software development solutions Eliza Greene Director, GRNSTR I will rate OpenXcell 5 on 5 for their exceptional work! × Lisa Bailey Founder, DockHere I couldn’t thank OpenXcell more in terms of giving valuable suggestions. They were always available to discuss the design and feasibility of the project. The core strengths of OpenXcell are their expertise, patience, etc. × Franz A. Wakefield CEO And Founder , CoolTVNetwork OpenXcell Team was highly professional, detail-oriented & committed to giving the highest quality product. × Bryan Rivers CEO, Malibbo It's been great to work with the team, this is my second project. I truly appreciate each and every one of your efforts. We are almost there, a couple of more weeks and I think we will be able to take this leap. × Christina Delord Founder, TracPrac They understood our idea, had realistic timelines, and offered innovative suggestions for our software. You can depend on their creativity, expertise, and reliable service to complete your project, big or small. × SEE ALL TESTIMONIALS What Makes Us The Ideal Bespoke Software Development Company Some of the reasons why clients choose and recommend our software development services company 1000+ Happy Customers A wide client base across various industries 
-        """
-        
-sample2="""
-
-Build your Product. Read Case Study
-### The fastest way to make Bitcoin payments globally
-Make lightning-fast payments with your Bitcoin. Speed Wallet- the Bitcoin li- **50K+ Downloads**
-- **35K+ Active users**
-- **21+ Countries Served**
-Build your product. View Product
-### The ultimate game-changer in e-commerce management
-The Orderhive ecommerce automation platform, now owned by Cin7 , enables who- **3.2K+ Active Customers**
-- **450+ Integrations**
-- **1M+ Transactions Processed Daily**
-Build your Product. Read Case Study
-### Revolutionary AI-powered job-matching platform for recruiters and job seThrough JobTatkal, recruiters can post their requirements, and Artificial In- **10x faster profile setup with AI parsing of CVs**
-- **91% less hiring time with AI candidate search**
-- **7x faster job posting with AI-driven job descriptions**
-Build your Product. Read Case Study
----
-## Software Solutions for SMEs and Enterprises
-Our impressive results across a variety of industries:
-- **Healthcare**
-- **E-commerce**
-- **BFSI**
-- **Education**
-- **Logistic**
-- **Energy & Utility**
-- **Sports**
----
-## Healthcare
-### IIAM - The Next-gen Patient Management Mobile Application
-Created for doctors from John Hopkins Research Institute, IIAM is a patient - **Technology Stack:** AWS, IONIC, Native Android, NodeJS
----
-## E-commerce
-### Orderhive - A SaaS-based Ecommerce Automation Software
-Cin7 Orderhive is SaaS product developed for buyers and vendors that helps t- **Technology Stack:** AWS, Java, MySQL, NodeJS
----
-## BFSI
-### Power Traveller - An App for Power Credit Cardholders
-Power Traveller is a reward planning application, developed for Ajman Bank t- **Technology Stack:** AWS, Java, NodeJS, Swift
----
-## Education
-### TracPrac - Competency and LMS Platform For Nursing Students
-TracPrac is a clinical application built for nursing students to track their- **Technology Stack:** Java, MySQL, NodeJS, ReactJS
----
-## Logistic
-### Mover Storage - A Warehouse Storage Management App
-Mover Storage is a mobile application for storage management of warehouses b- **Technology Stack:** iOS, NodeJS
----
-## Energy & Utility
-### Step-Up - A Waste Management App for the Citizens
-Step Up is a waste management application used in Singapore to manage recycl- **Technology Stack:** iOS, Kotlin, ReactJS, Swift
----
-## Sports
-### AthletesGoLive - A Platform For Sports Enthusiasts
-AthletesGoLive is a creative application for aspiring athletes and sports fo- **Technology Stack:** AWS, Mongo DB
----
-## We Love Happy Clients!
-Client satisfaction is our ultimate goal. Here are some testimonials from ou**Eliza Greene**
-*Director, GRNSTR*
-I will rate OpenXcell 5 on 5 for their exceptional work!
-**Lisa Bailey**
-*Founder, DockHere*
-I couldn’t thank OpenXcell more in terms of giving valuable suggestions. The**Franz A. Wakefield**
-*CEO And Founder, CoolTVNetwork*
-OpenXcell Team was highly professional, detail-oriented & committed to givin**Bryan Rivers** 
-*CEO, Malibbo*
-It's been great to work with the team, this is my second project. I truly ap**Christina Delord**
-*Founder, TracPrac*
-They understood our idea, had realistic timelines, and offered innovative su---
-## What Makes Us The Ideal Bespoke Software Development Company
-Some of the reasons why clients choose and recommend our software developmen- **1000+ Happy Customers:** A wide client base across various industrie
-
-"""
 
 
 
@@ -226,7 +156,30 @@ class OpenAI:
             return ''
 
 
+    def gpt_ocr(self,base64_image):
+        try:
+            response = client.chat.completions.create(
+            model="gpt-4o",
+            messages=[
+                {
+                "role": "user",
+                "content": [
+                    {"type": "text", "text": "do ocr in this image, Note: DOnt miss logo ,and any other information to exctract? Note:  Give your answer in backtick format Note: dont add in your answer such as This is a blockquote. just give me extracted information in blacktick in return thats it , nothing else add in your answer"},
+                    {
+                    "type": "image_url",
+                    "image_url": {
+                        "url": f"data:image/jpeg;base64,{base64_image}"
+                    },
+                    },
+                ],
+                }
+            ]
+            )
 
+            return response.choices[0].message.content
+        except Exception as e:
+            print('Error gpt_ocr ',e)
+            return ''
 
 
 
