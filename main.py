@@ -1,4 +1,4 @@
-from fastapi import FastAPI,WebSocket, WebSocketDisconnect,Depends,UploadFile , File
+from fastapi import FastAPI,WebSocket, WebSocketDisconnect,Depends,UploadFile , File,Request
 from fastapi.middleware.cors import CORSMiddleware
 import asyncio
 from manageSocket.manager import ConnectionManager
@@ -67,7 +67,19 @@ manager=ConnectionManager()
 async def get():
     return 'test'
 
+@app.get('/my-endpoint')
+async def my_endpoint(request: Request):
+    forwarded_for = request.headers.get('X-Forwarded-For')
+    if forwarded_for:
+        # Get the first IP in the X-Forwarded-For list, which is the client's IP
+        ip = forwarded_for.split(',')[0]
+    else:
+        # Fallback to the request's client IP (likely to be the proxy's IP)
+        ip = request.client.host
 
+    print(ip)
+    return {'status': 1, 'message': 'ok'}
+    
 @app.post("/")
 async def post_url(data: UrlData,db: Session = Depends(get_db)):
     if 'amazon' in data.url:
